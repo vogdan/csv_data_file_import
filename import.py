@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import csv
 
 INPUT_FILE = 'input-FromGotoWebinar.csv'
@@ -75,7 +77,7 @@ def get_parameter(param_str, headers, values):
             list representing the corresponding header values
     :return: the value of the specified parameter
     :calling example:
-              #get webinar id
+              # get webinar id
               w_info = get_webinar_info(INPUT_FILE)
               webinar_id = get_parameter('Webinar ID', w_info[0], w_info[1])
     """
@@ -90,6 +92,10 @@ def write_to_csv(output_file, headers, values_list):
            a list representing the csv file header
            a list of lists, each representing the corresponding values
     :return: nothing
+    :calling example:
+              # write webinar details to csv
+              w_info = get_webinar_info(INPUT_FILE)
+              write_to_csv(OUTPUT_WEBINARS, w_info[0], [w_info[1]])
     """
     with open(output_file, 'wb') as csv_file:
         writer = csv.writer(csv_file)
