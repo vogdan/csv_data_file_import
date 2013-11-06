@@ -10,9 +10,9 @@ DETAILS_MARK = "Session Details"
 
 
 def clear_empty_from_list(my_list):
-    '''
+    """
     Remove empty string entries from my_list
-    '''
+    """
     return [x for x in my_list if x]
 
 
