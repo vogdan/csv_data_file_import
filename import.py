@@ -111,9 +111,10 @@ def write_to_csv(output_file, headers, values_list):
             writer.writerow(values)
 
 
-
+# get webinar and participants info
 w_info = get_webinar_info(INPUT_FILE)
-write_to_csv(OUTPUT_WEBINARS, w_info[0], [w_info[1]])
 webinar_id = get_parameter('Webinar ID', w_info[0], w_info[1])
 p_info = get_participants_info(INPUT_FILE, webinar_id)
+# create output files
+write_to_csv(OUTPUT_WEBINARS, w_info[0], [w_info[1]])
 write_to_csv(OUTPUT_PARTICIPANTS, p_info[0], p_info[1])
