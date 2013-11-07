@@ -5,14 +5,17 @@ import csv
 INPUT_FILE = 'input-FromGotoWebinar.csv'
 OUTPUT_PARTICIPANTS = 'oput-Participants.csv'
 OUTPUT_WEBINARS = 'oput-Webinars.csv'
-GENERAL_MARK = "General Information"
 DETAILS_MARK = "Session Details"
 
 
 def clear_empty_from_list(my_list):
     """
     Remove empty string entries from my_list
+    
+    :input: a list
+    :output: a new list with empty string entries removed
     """
+    
     return [x for x in my_list if x]
 
 
@@ -24,6 +27,7 @@ def get_webinar_info(input_file):
     :return: a list of two lists containing the webinar details 
              headers and corresponding header values
     """
+    
     with open(input_file, 'rb') as csv_file:
         reader = csv.reader(csv_file)
         # read Generated info and advance to next useful headers
@@ -53,6 +57,7 @@ def get_participants_info(input_file, webinar_id):
     :return: a list of two lists containing the webinar participants details 
              headers and a list of items representing corresponding header values
     """
+    
     reading_details = 0
     values_list = []
     with open(input_file, 'rb') as csv_file:
@@ -81,6 +86,7 @@ def get_parameter(param_str, headers, values):
               w_info = get_webinar_info(INPUT_FILE)
               webinar_id = get_parameter('Webinar ID', w_info[0], w_info[1])
     """
+    
     return values[headers.index(param_str)]
 
 
@@ -97,11 +103,13 @@ def write_to_csv(output_file, headers, values_list):
               w_info = get_webinar_info(INPUT_FILE)
               write_to_csv(OUTPUT_WEBINARS, w_info[0], [w_info[1]])
     """
+    
     with open(output_file, 'wb') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(headers)
         for values in values_list:
             writer.writerow(values)
+
 
 
 w_info = get_webinar_info(INPUT_FILE)
