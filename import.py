@@ -1,8 +1,9 @@
-#!/usr/bin/env python
 
-import csv
+from csv import reader, writer
+from os import listdir
+from os.path import join
 
-INPUT_FILE = 'input-FromGotoWebinar.csv'
+INPUT_DIR = join("C:\\", "Elance", "CSV Data File Import", "input")
 OUTPUT_PARTICIPANTS = 'oput-Participants.csv'
 OUTPUT_WEBINARS = 'oput-Webinars.csv'
 DETAILS_MARK = "Session Details"
@@ -29,12 +30,12 @@ def get_webinar_info(input_file):
     """
     
     with open(input_file, 'rb') as csv_file:
-        reader = csv.reader(csv_file)
+        rdr = reader(csv_file)
         # read Generated info and advance to next useful headers
-        reader.next()
-        keys = reader.next()
-        vals = reader.next()
-        reader.next()
+        rdr.next()
+        keys = rdr.next()
+        vals = rdr.next()
+        rdr.next()
         # read the rest of webinar info
         while DETAILS_MARK not in keys:
             try:
@@ -43,8 +44,8 @@ def get_webinar_info(input_file):
             except NameError:
                 headers = clear_empty_from_list(keys)
                 values = clear_empty_from_list(vals)
-            keys = reader.next()
-            vals = reader.next()
+            keys = rdr.next()
+            vals = rdr.next()
     return [headers, values]
 
 
@@ -61,11 +62,11 @@ def get_participants_info(input_file, webinar_id):
     reading_details = 0
     values_list = []
     with open(input_file, 'rb') as csv_file:
-        reader = csv.reader(csv_file)
-        for row in reader:
+        rdr = reader(csv_file)
+        for row in rdr:
             if not reading_details:
                 if DETAILS_MARK in row:
-                    headers = ['Webinar ID'] + reader.next()
+                    headers = ['Webinar ID'] + rdr.next()
                     reading_details = 1
                     continue
             else:
@@ -105,16 +106,39 @@ def write_to_csv(output_file, headers, values_list):
     """
     
     with open(output_file, 'wb') as csv_file:
-        writer = csv.writer(csv_file)
-        writer.writerow(headers)
+        wrtr = writer(csv_file)
+        wrtr.writerow(headers)
         for values in values_list:
-            writer.writerow(values)
+            wrtr.writerow(values)
 
-
-# get webinar and participants info
-w_info = get_webinar_info(INPUT_FILE)
-webinar_id = get_parameter('Webinar ID', w_info[0], w_info[1])
-p_info = get_participants_info(INPUT_FILE, webinar_id)
+webinars_dict = {}
+participants_dict = {}
+for f in listdir(INPUT_DIR):
+	input_file = join(INPUT_DIR, f)
+	# get webinar and participants info
+	webinar_info = get_webinar_info(input_file)
+	webinar_id = get_parameter('Webinar ID', webinar_info[0], webinar_info[1])
+	participants_info = get_participants_info(input_file, webinar_id)
+	if webinar_id not in webinars_dict:
+		webinars_dict[webinar_id] = [webinar_info[1]]
+	else:
+		webinars_dict[webinar_id] += [webinar_info[1]]
+	if webinar_id not in participants_dict:
+		participants_dict[webinar_id] = participants_info[1]
+	else:
+		participants_dict[webinar_id] += participants_info[1]
+	
 # create output files
-write_to_csv(OUTPUT_WEBINARS, w_info[0], [w_info[1]])
-write_to_csv(OUTPUT_PARTICIPANTS, p_info[0], p_info[1])
+webinars_header = webinar_info[0]
+webinars_values = []
+participants_header = participants_info[0]
+participants_values = []
+for key in webinars_dict:
+	webinars_values += webinars_dict[key]
+for key in participants_dict:
+	participants_values += participants_dict[key]
+		
+write_to_csv(OUTPUT_WEBINARS, webinars_header, webinars_values)
+write_to_csv(OUTPUT_PARTICIPANTS, participants_header, participants_values)
+
+
