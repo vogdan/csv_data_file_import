@@ -113,7 +113,8 @@ def write_to_csv(output_file, headers, values_list):
 
 def find_csv_filenames(input_dir, suffix=".csv"):
     filenames = listdir(input_dir)
-    return [filename for filename in filenames if filename.endswith(suffix)]
+    return [join(input_dir, filename) for filename in filenames 
+                                        if filename.endswith(suffix)]
 
 # cycle through files in input dir and gather info
 webinars_dict, participants_dict = {}, {}
