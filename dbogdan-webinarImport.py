@@ -3,7 +3,7 @@ from csv import reader, writer
 from os import listdir
 from os.path import join
 
-INPUT_DIR = join("C:\\", "Elance", "CSV Data File Import", "input")
+INPUT_DIR = "/mnt/mare/CodingWork/eLance/Data file import/input"
 OUTPUT_PARTICIPANTS = 'oput-Participants.csv'
 OUTPUT_WEBINARS = 'oput-Webinars.csv'
 DETAILS_MARK = "Session Details"
@@ -111,39 +111,87 @@ def write_to_csv(output_file, headers, values_list):
         for values in values_list:
             wrtr.writerow(values)
 
+
 def find_csv_filenames(input_dir, suffix=".csv"):
+    """
+    Scan the input directory and return a list containing all the .csv files
+    found there.
+    """
+    
     filenames = listdir(input_dir)
     return [join(input_dir, filename) for filename in filenames 
                                         if filename.endswith(suffix)]
 
+
 # cycle through files in input dir and gather info
-webinars_dict, participants_dict = {}, {}
+w_dict, p_dict = {}, {}
 for input_file in find_csv_filenames(INPUT_DIR):
 	# get webinar and participants info
 	webinar_info = get_webinar_info(input_file)
 	webinar_id = get_parameter('Webinar ID', webinar_info[0], webinar_info[1])
-	participants_info = get_participants_info(input_file, webinar_id)
-	# store info for later writing to files and data base
-	if webinar_id not in webinars_dict:
-		webinars_dict[webinar_id] = [webinar_info[1]]
+	p_info = get_participants_info(input_file, webinar_id)
+	# store info for later writing to files and database
+	if webinar_id not in w_dict:
+		w_dict[webinar_id] = [webinar_info[1]]
 	else:
-		webinars_dict[webinar_id] += [webinar_info[1]]
-	if webinar_id not in participants_dict:
-		participants_dict[webinar_id] = participants_info[1]
+		w_dict[webinar_id] += [webinar_info[1]]
+	if webinar_id not in p_dict:
+		p_dict[webinar_id] = p_info[1]
 	else:
-		participants_dict[webinar_id] += participants_info[1]
+		p_dict[webinar_id] += p_info[1]
 	
 # get headers and values for webinars and participants
-webinars_header = webinar_info[0]
-webinars_values = []
-participants_header = participants_info[0]
-participants_values = []
-for key in webinars_dict:
-	webinars_values += webinars_dict[key]
-for key in participants_dict:
-	participants_values += participants_dict[key]
-		
-write_to_csv(OUTPUT_WEBINARS, webinars_header, webinars_values)
-write_to_csv(OUTPUT_PARTICIPANTS, participants_header, participants_values)
+w_header = webinar_info[0]
+w_values = []
+p_header = p_info[0]
+p_values = []
+for key in w_dict:
+	w_values += w_dict[key]
+for key in p_dict:
+	p_values += p_dict[key]
 
+# write output files		
+write_to_csv(OUTPUT_WEBINARS, w_header, w_values)
+write_to_csv(OUTPUT_PARTICIPANTS, p_header, p_values)
 
+# write to database
+import MySQLdb as mdb
+
+DB_NAME = "testdb"
+SERVER_NAME = "localhost"
+USER = "testuser" 
+PASS = "testx"
+W_TABLE = "Webinars"
+P_TABLE = "Participants"
+
+def write_sql_table(cursor, db_name, table_name, headers_list, values_list):
+
+    print "Dropping table {}.{}...".format(db_name, table_name)
+    cursor.execute("DROP TABLE IF EXISTS {}.{}".format(db_name, table_name))
+
+    print "Creating table {}.{}...".format(db_name, table_name)
+    db_headers = [x.translate(None, '() ') for x in headers_list]
+    create_cmd = "CREATE TABLE {}({})".format(
+        table_name,
+        ", ".join(["`"+x+"`" + " VARCHAR(500)" for x in db_headers]))
+    cursor.execute(create_cmd)
+
+    print "Populating table {}.{}...".format(db_name, table_name)
+    header_len = len(headers_list)
+    for row in values_list:
+        if len(row) > header_len:
+            row = row[:header_len]
+        insert_cmd = "INSERT INTO {0}({1}) VALUES({2})".format(  
+            db_name + "." + table_name,
+            ", ".join(["`"+x+"`" for x in db_headers]),
+            ", ".join(["'"+x+"'" for x in row]))
+        cursor.execute(insert_cmd)
+
+    
+conn = mdb.connect(SERVER_NAME, USER, PASS, DB_NAME)
+with conn:
+    cur = conn.cursor()
+    write_sql_table(cur, DB_NAME, W_TABLE, w_header, w_values)
+    write_sql_table(cur, DB_NAME, P_TABLE, p_header, p_values)
+    
+        
