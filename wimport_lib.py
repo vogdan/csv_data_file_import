@@ -2,9 +2,6 @@ from os import listdir
 from csv import reader, writer
 from os.path import join
 
-INPUT_DIR = "/mnt/mare/CodingWork/eLance/Data file import/input"
-OUTPUT_PARTICIPANTS = 'oput-Participants.csv'
-OUTPUT_WEBINARS = 'oput-Webinars.csv'
 DETAILS_MARK = "Session Details"
 
 def clear_empty_from_list(my_list):
