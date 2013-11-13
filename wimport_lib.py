@@ -4,6 +4,7 @@ from os.path import join
 
 DETAILS_MARK = "Session Details"
 
+
 def clear_empty_from_list(my_list):
     """
     Remove empty string entries from my_list
