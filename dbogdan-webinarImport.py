@@ -111,14 +111,18 @@ def write_to_csv(output_file, headers, values_list):
         for values in values_list:
             wrtr.writerow(values)
 
-webinars_dict = {}
-participants_dict = {}
-for f in listdir(INPUT_DIR):
-	input_file = join(INPUT_DIR, f)
+def find_csv_filenames(input_dir, suffix=".csv"):
+    filenames = listdir(input_dir)
+    return [filename for filename in filenames if filename.endswith(suffix)]
+
+# cycle through files in input dir and gather info
+webinars_dict, participants_dict = {}, {}
+for input_file in find_csv_filenames(INPUT_DIR):
 	# get webinar and participants info
 	webinar_info = get_webinar_info(input_file)
 	webinar_id = get_parameter('Webinar ID', webinar_info[0], webinar_info[1])
 	participants_info = get_participants_info(input_file, webinar_id)
+	# store info for later writing to files and data base
 	if webinar_id not in webinars_dict:
 		webinars_dict[webinar_id] = [webinar_info[1]]
 	else:
@@ -128,7 +132,7 @@ for f in listdir(INPUT_DIR):
 	else:
 		participants_dict[webinar_id] += participants_info[1]
 	
-# create output files
+# get headers and values for webinars and participants
 webinars_header = webinar_info[0]
 webinars_values = []
 participants_header = participants_info[0]
