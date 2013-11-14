@@ -2,8 +2,6 @@ from os import listdir
 from csv import reader, writer
 from os.path import join
 
-DETAILS_MARK = "Session Details"
-
 
 def clear_empty_from_list(my_list):
     """
@@ -16,7 +14,7 @@ def clear_empty_from_list(my_list):
     return [x for x in my_list if x]
 
 
-def get_webinar_info(input_file):
+def get_webinar_info(input_file, details_mark):
     """
     Gather information about the webinar
     
@@ -33,7 +31,7 @@ def get_webinar_info(input_file):
         vals = rdr.next()
         rdr.next()
         # read the rest of webinar info
-        while DETAILS_MARK not in keys:
+        while details_mark not in keys:
             try:
                 headers += clear_empty_from_list(keys)
                 values += clear_empty_from_list(vals)
@@ -45,7 +43,7 @@ def get_webinar_info(input_file):
     return [headers, values]
 
 
-def get_participants_info(input_file, webinar_id):
+def get_participants_info(input_file, webinar_id, details_mark):
     """
     Gather information about the webinar participants
     
@@ -61,7 +59,7 @@ def get_participants_info(input_file, webinar_id):
         rdr = reader(csv_file)
         for row in rdr:
             if not reading_details:
-                if DETAILS_MARK in row:
+                if details_mark in row:
                     headers = ['Webinar ID'] + rdr.next()
                     reading_details = 1
                     continue

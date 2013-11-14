@@ -5,6 +5,8 @@ from wimport_lib import *
 INPUT_DIR = "/mnt/mare/CodingWork/eLance/Data file import/input"
 OUTPUT_PARTICIPANTS = 'oput-Participants.csv'
 OUTPUT_WEBINARS = 'oput-Webinars.csv'
+DETAILS_MARK = "Session Details"
+
 DB_NAME = "testdb"
 SERVER_NAME = "localhost"
 USER = "testuser" 
