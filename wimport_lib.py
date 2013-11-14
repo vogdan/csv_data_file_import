@@ -98,7 +98,7 @@ def write_to_csv(output_file, headers, values_list):
               w_info = get_webinar_info(INPUT_FILE)
               write_to_csv(OUTPUT_WEBINARS, w_info[0], [w_info[1]])
     """
-    
+    print "Writing file {}...".format(output_file)
     with open(output_file, 'wb') as csv_file:
         wrtr = writer(csv_file)
         wrtr.writerow(headers)
@@ -149,10 +149,7 @@ def write_sql_table(cursor, db_name, table_name, headers_list, values_list):
     cursor.execute(create_cmd)
 
     print "Populating table {}.{}...".format(db_name, table_name)
-    header_len = len(headers_list)
     for row in values_list:
-        if len(row) > header_len:
-            row = row[:header_len]
         insert_cmd = "INSERT INTO {0}({1}) VALUES({2})".format(  
             db_name + "." + table_name,
             ", ".join(["`"+x+"`" for x in db_headers]),
