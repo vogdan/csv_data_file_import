@@ -2,7 +2,7 @@
 from MySQLdb import connect
 from wimport_lib import *
 
-INPUT_DIR = "/mnt/mare/CodingWork/eLance/Data file import/input"
+INPUT_DIR = "C:\Elance\CSV Data File Import\input"
 OUTPUT_PARTICIPANTS = 'oput-Participants.csv'
 OUTPUT_WEBINARS = 'oput-Webinars.csv'
 DETAILS_MARK = "Session Details"
