@@ -28,10 +28,16 @@ https://www.elance.com/j/data-file-import/48843674/?bidid=48910074
    Create a new database user and a new database and grant all privileges to this user for all tables of the database. 
 
     $ mysql -u root -p
-    Enter password: 
+    Enter password: *****
     Welcome to the MySQL monitor.  Commands end with ; or \g.
-    Your MySQL connection id is 30
-    Server version: 5.0.67-0ubuntu6 (Ubuntu)
+    Your MySQL connection id is 7
+    Server version: 5.6.14 MySQL Community Server (GPL)
+
+    Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+
+    Oracle is a registered trademark of Oracle Corporation and/or its
+    affiliates. Other names may be trademarks of their respective
+    owners.
 
     Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
 
