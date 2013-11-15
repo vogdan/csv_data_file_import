@@ -49,12 +49,15 @@ def get_participants_info(input_file, webinar_id, details_mark):
     
     :input: a csv file of attendees for a GotoWebinar to read from
             the webinar id number
-    :return: a list of two lists containing the webinar participants details 
-             headers and a list of items representing corresponding header values
+    :return: a list of two lists containing the webinar participants 
+            details headers and a list of items representing corresponding 
+            header values
     """
     
     reading_details = 0
     values_list = []
+    remove_row_marker = '''*If an attendee left and rejoined the session,
+     the In Session Duration column only includes their first visit.'''
     with open(input_file, 'rb') as csv_file:
         rdr = reader(csv_file)
         for row in rdr:
@@ -64,7 +67,8 @@ def get_participants_info(input_file, webinar_id, details_mark):
                     reading_details = 1
                     continue
             else:
-                values_list.append([webinar_id] + row)
+                if remove_row_marker not in row:
+                    values_list.append([webinar_id] + row)
     return [headers, values_list]
 
 
@@ -125,17 +129,16 @@ def write_sql_table(cursor, db_name, table_name, headers_list, values_list):
     """
     Write info to an SQL table.
 
-    :input: cursor - MySQLdb cursor object as obtained prior to connecting to the
-                     database
+    :input: cursor - MySQLdb cursor object as obtained prior to connecting 
+                to the database
             db_name - name of the database to create the table in
             table_name - name of table to be created
             headers_list - table headers
             values_list - list of lists each containing a table row
     :return: Nothing
-    :notes: Table will be dropped and recreated if already exists
-            Headers (columns) names will have all spaces and round brackets removed
-            If values list is longer than headers list, it will be trimmed to 
-            headers list length
+    :notes: Tables will be dropped and recreated if already exist
+            Column names will be the CSV headers with spaces and round 
+                brackets removed.
     """
 
     print "Dropping table {}.{}...".format(db_name, table_name)
