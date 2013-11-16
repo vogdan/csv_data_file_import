@@ -68,7 +68,7 @@ if diffs:
                     insert_pos = int(pos) + int(diffs_pos.index(pos))
                     row.insert(insert_pos, "")
             else:
-                break        
+                break
 p_values += p_dict[key]
 
 # write output files

@@ -1,14 +1,58 @@
-
-###Data File Import
+CSV Data File Import
+================
 
 Python program to import multiple files of attendees for GotoWebinar webinars and create 2 output files: 
 one with a one row per attendee and one with one row per webinar
 
-Program should read from multiple input files (all same format) and create just the 2 output files.  
+
+###Requirements
+  
+- program should read from multiple input files (see attachments) and create just the 2 output files.  
 Note that some of the input files are slightly different
  
-In addtion to creating the output files, the program should load the output to a database.  
+- program should have a command line option "-i <directory>"  where <directory> specifies where the input files 
+can be found
+
+- the output file should be written to the current durectory (where the py file is invoked)
+ 
+- if the program is run with a command line option "-d" it should load the output to a database 
+(in addition to creating the output file)
 The program should create the tables if they don't exist or overwrite everything if they do exist.  
-Table and Server names can be specified in a constant at the top of the file DB_NAME and SERVER_NAME
+Table and Server names can be specified in variables at inside the python file as DB_NAME and SERVER_NAME
 
 https://www.elance.com/j/data-file-import/48843674/?bidid=48910074
+
+
+###Database setup
+
+   Create a new database user and a new database and grant all privileges to this user for all tables of the database. 
+
+    $ mysql -u root -p
+    Enter password: *****
+    Welcome to the MySQL monitor.  Commands end with ; or \g.
+    Your MySQL connection id is 7
+    Server version: 5.6.14 MySQL Community Server (GPL)
+
+    Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+
+    Oracle is a registered trademark of Oracle Corporation and/or its
+    affiliates. Other names may be trademarks of their respective
+    owners.
+
+    Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+
+    mysql> CREATE DATABASE testdb;
+    Query OK, 1 row affected (0.02 sec)
+
+    mysql> CREATE USER 'testuser'@'localhost' IDENTIFIED BY 'test623';
+    Query OK, 0 rows affected (0.00 sec)
+
+    mysql> USE testdb;
+    Database changed
+
+    mysql> GRANT ALL ON testdb.* TO 'testuser'@'localhost';
+    Query OK, 0 rows affected (0.00 sec)
+
+    mysql> quit;
+    Bye
+
