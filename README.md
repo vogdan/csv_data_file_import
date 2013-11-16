@@ -75,4 +75,4 @@ https://www.elance.com/j/data-file-import/48843674/?bidid=48910074
 
 ###Others
 
-- The program has been tested on Ubuntu 12.04 and Windows XP
+- The program has been written in Python 2.7.3 and tested on Ubuntu 12.04 and Windows XP
