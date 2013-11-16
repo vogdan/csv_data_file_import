@@ -2,30 +2,26 @@ CSV Data File Import
 ================
 
 Python program to import multiple files of attendees for GotoWebinar webinars and create 2 output files: 
-one with a one row per attendee and one with one row per webinar
+one with a one row per attendee and one with one row per webinar. 
+If so specified, the program can also write the information gathered into a database containing two tables 
+(the tables are overwritten each timethe program is called)
 
 
-###Requirements
-  
-- program should read from multiple input files (see attachments) and create just the 2 output files.  
-Note that some of the input files are slightly different
- 
-- program should have a command line option "-i <directory>"  where <directory> specifies where the input files 
-can be found
+###Usage
+    
+      
+    python dbogdan-webinarImport.py [-h] -i INPUT_DIR [-d]
 
-- the output file should be written to the current durectory (where the py file is invoked)
- 
-- if the program is run with a command line option "-d" it should load the output to a database 
-(in addition to creating the output file)
-The program should create the tables if they don't exist or overwrite everything if they do exist.  
-Table and Server names can be specified in variables at inside the python file as DB_NAME and SERVER_NAME
-
-https://www.elance.com/j/data-file-import/48843674/?bidid=48910074
-
+    Arguments:
+          -h, --help            Show help message and exit
+          -i, --input_dir       Directory containing input csv files
+          -d, --write_to_db     Write info to database also
+          
 
 ###Database setup
 
-   Create a new database user and a new database and grant all privileges to this user for all tables of the database. 
+   For the database writing to work, we need to create a user and a database and grant all privileges to this user 
+   for all tables of the database. 
 
     $ mysql -u root -p
     Enter password: *****
@@ -56,3 +52,27 @@ https://www.elance.com/j/data-file-import/48843674/?bidid=48910074
     mysql> quit;
     Bye
 
+
+
+
+### Program Requirements
+  
+- program should read from multiple input files (see attachments) and create just the 2 output files.  
+Note that some of the input files are slightly different
+ 
+- program should have a command line option "-i <directory>"  where <directory> specifies where the input files 
+can be found
+
+- the output file should be written to the current durectory (where the py file is invoked)
+ 
+- if the program is run with a command line option "-d" it should load the output to a database 
+(in addition to creating the output file)
+The program should create the tables if they don't exist or overwrite everything if they do exist.  
+Table and Server names can be specified in variables at inside the python file as DB_NAME and SERVER_NAME
+
+https://www.elance.com/j/data-file-import/48843674/?bidid=48910074
+
+
+###Others
+
+- The program has been tested on Ubuntu 12.04 and Windows XP
