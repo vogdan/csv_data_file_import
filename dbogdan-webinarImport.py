@@ -1,8 +1,8 @@
 
 from MySQLdb import connect
+from argparse import ArgumentParser
 from wimport_lib import *
 
-INPUT_DIR = "/mnt/mare/CodingWork/eLance/Data file import/input"
 OUTPUT_PARTICIPANTS = 'oput-Participants.csv'
 OUTPUT_WEBINARS = 'oput-Webinars.csv'
 DETAILS_MARK = "Session Details"
@@ -13,12 +13,18 @@ PASS = "testx"
 W_TABLE = "Webinars"
 P_TABLE = "Participants"
 
+# parse CLI options 
+parser = ArgumentParser(description='''Gather participants and webinars info from 
+multiple files of attendees for GotoWebinar webinars''')
+parser.add_argument('-i', '--indir', help='Directory containing input csv files', required=True)
+parser.add_argument('-d', '--dbout', help='Write info to database also', action="store_true")
+args = parser.parse_args()
 
+# cycle through files in input dir and gather info in dictionaries
+#    containing lists of lists
 w_dict, p_dict = {}, {}
 p_headers_list = []
-# cycle through files in input dir and gather info in dicttionaries
-#    containing lists of lists
-for input_file in find_csv_filenames(INPUT_DIR):
+for input_file in find_csv_filenames(args.indir):
     # get webinar and participants info
     webinar_info = get_webinar_info(input_file, DETAILS_MARK)
     webinar_id = get_parameter('Webinar ID', webinar_info[0], webinar_info[1])
@@ -63,17 +69,18 @@ if diffs:
                     row.insert(insert_pos, "")
             else:
                 break        
-p_values += p_dict[key] 
+p_values += p_dict[key]
 
 # write output files
-print "\nWriting output files:"		
+print "\nWriting output files:"                
 write_to_csv(OUTPUT_WEBINARS, w_header, w_values)
 write_to_csv(OUTPUT_PARTICIPANTS, p_header, p_values)
 
 # write to database
-print "\nWriting do database:"
-conn = connect(SERVER_NAME, USER, PASS, DB_NAME)
-with conn:
-    cur = conn.cursor()
-    write_sql_table(cur, DB_NAME, W_TABLE, w_header, w_values)
-    write_sql_table(cur, DB_NAME, P_TABLE, p_header, p_values)
+if args.dbout:
+    print "\nWriting do database:"
+    conn = connect(SERVER_NAME, USER, PASS, DB_NAME)
+    with conn:
+        cur = conn.cursor()
+        write_sql_table(cur, DB_NAME, W_TABLE, w_header, w_values)
+        write_sql_table(cur, DB_NAME, P_TABLE, p_header, p_values)
