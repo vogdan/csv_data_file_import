@@ -16,15 +16,15 @@ P_TABLE = "Participants"
 # parse CLI options 
 parser = ArgumentParser(description='''Gather participants and webinars info from 
 multiple files of attendees for GotoWebinar webinars''')
-parser.add_argument('-i', '--indir', help='Directory containing input csv files', required=True)
-parser.add_argument('-d', '--dbout', help='Write info to database also', action="store_true")
+parser.add_argument('-i', '--input_dir', help='Directory containing input csv files', required=True)
+parser.add_argument('-d', '--write_to_db', help='Write info to database also', action="store_true")
 args = parser.parse_args()
 
 # cycle through files in input dir and gather info in dictionaries
 #    containing lists of lists
 w_dict, p_dict = {}, {}
 p_headers_list = []
-for input_file in find_csv_filenames(args.indir):
+for input_file in find_csv_filenames(args.input_dir):
     # get webinar and participants info
     webinar_info = get_webinar_info(input_file, DETAILS_MARK)
     webinar_id = get_parameter('Webinar ID', webinar_info[0], webinar_info[1])
@@ -77,7 +77,7 @@ write_to_csv(OUTPUT_WEBINARS, w_header, w_values)
 write_to_csv(OUTPUT_PARTICIPANTS, p_header, p_values)
 
 # write to database
-if args.dbout:
+if args.write_to_db:
     print "\nWriting do database:"
     conn = connect(SERVER_NAME, USER, PASS, DB_NAME)
     with conn:
