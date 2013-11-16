@@ -56,8 +56,7 @@ def get_participants_info(input_file, webinar_id, details_mark):
     
     reading_details = 0
     values_list = []
-    remove_row_marker = '''*If an attendee left and rejoined the session,
-     the In Session Duration column only includes their first visit.'''
+    remove_row_marker = '*If an attendee left and rejoined the session, the In Session Duration column only includes their first visit.'
     with open(input_file, 'rb') as csv_file:
         rdr = reader(csv_file)
         for row in rdr:

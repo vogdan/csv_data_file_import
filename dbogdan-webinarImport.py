@@ -14,10 +14,14 @@ W_TABLE = "Webinars"
 P_TABLE = "Participants"
 
 # parse CLI options 
-parser = ArgumentParser(description='''Gather participants and webinars info from 
-multiple files of attendees for GotoWebinar webinars''')
-parser.add_argument('-i', '--input_dir', help='Directory containing input csv files', required=True)
-parser.add_argument('-d', '--write_to_db', help='Write info to database also', action="store_true")
+parser = ArgumentParser(description='''Gather participants and webinars 
+info from multiple files of attendees for GotoWebinar webinars''')
+parser.add_argument('-i', '--input_dir', 
+                    help='Directory containing input csv files', 
+                    required=True)
+parser.add_argument('-d', '--write_to_db', 
+                    help='Write info to database also', 
+                    action="store_true")
 args = parser.parse_args()
 
 # cycle through files in input dir and gather info in dictionaries
