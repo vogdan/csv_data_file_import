@@ -1,6 +1,9 @@
 
 from MySQLdb import connect
 from argparse import ArgumentParser
+import logging
+import sys
+from time import gmtime, strftime
 from wimport_lib import *
 
 OUTPUT_PARTICIPANTS = 'oput-Participants.csv'
@@ -13,7 +16,12 @@ PASS = "testx"
 W_TABLE = "Webinars"
 P_TABLE = "Participants"
 
-# parse CLI options 
+# setup logging
+LOG_FILE = sys.argv[0].split(".")[0] + ".log"
+logging.basicConfig(filename=LOG_FILE,
+                    level=logging.DEBUG)
+logging.debug("#"*10+strftime("%a, %d %b %Y %X +0000", gmtime())+"#"*10)
+# parse CLI options
 parser = ArgumentParser(description='''Gather participants and webinars 
 info from multiple files of attendees for GotoWebinar webinars''')
 parser.add_argument('-i', '--input_dir', 
@@ -33,7 +41,8 @@ for input_file in find_csv_filenames(args.input_dir):
     webinar_info = get_webinar_info(input_file, DETAILS_MARK)
     webinar_id = get_parameter('Webinar ID', webinar_info[0], webinar_info[1])
     p_info = get_participants_info(input_file, webinar_id, DETAILS_MARK)
-
+    logging.debug("Reading from file {}".format(input_file))
+    logging.debug("Webinar ID {} - participants info size {} rows".format(webinar_id, len(p_info[1])))
     # store info for later writing to files and database
     if webinar_id not in w_dict:
         w_dict[webinar_id] = [webinar_info[1]]
@@ -73,7 +82,9 @@ if diffs:
                     row.insert(insert_pos, "")
             else:
                 break
-p_values += p_dict[key]
+        p_values += p_dict[key]
+
+logging.debug("Total articipants info size: {}".format(len(p_values)))
 
 # write output files
 print "\nWriting output files:"                
