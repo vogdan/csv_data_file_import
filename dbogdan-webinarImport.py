@@ -1,4 +1,3 @@
-
 from MySQLdb import connect
 from argparse import ArgumentParser
 import logging
@@ -21,6 +20,7 @@ LOG_FILE = sys.argv[0].split(".")[0] + ".log"
 logging.basicConfig(filename=LOG_FILE,
                     level=logging.DEBUG)
 logging.debug("#"*10+strftime("%a, %d %b %Y %X +0000", gmtime())+"#"*10)
+
 # parse CLI options
 parser = ArgumentParser(description='''Gather participants and webinars 
 info from multiple files of attendees for GotoWebinar webinars''')
@@ -84,7 +84,7 @@ if diffs:
                 break
         p_values += p_dict[key]
 
-logging.debug("Total articipants info size: {}".format(len(p_values)))
+logging.debug("Total participants info size: {}".format(len(p_values)))
 
 # write output files
 print "\nWriting output files:"                
