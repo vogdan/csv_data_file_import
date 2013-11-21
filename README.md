@@ -17,7 +17,7 @@ If so specified, the program can also write the information gathered into a data
           -i, --input_dir       Directory containing input csv files
           -d, --write_to_db     Write info to database also
           
-    Packages needed: MySQLdb, logger.      
+    Packages needed: MySQLdb, logging.      
 
 ###Database setup
 
