@@ -75,21 +75,35 @@ for h in p_headers_list[1:]:
     elif len(h) < len(p_header):
         diffs = [x for x in p_header if x not in h]
         break
+
 if diffs:
-    # handle differences in input files headers
     diffs_pos = [p_header.index(x) for x in diffs]
-    for key in p_dict:
-        for row in p_dict[key]: 
-            if len(row) != len(p_header):
-                for pos in diffs_pos:
-                    insert_pos = int(pos) + int(diffs_pos.index(pos))
-                    row.insert(insert_pos, "")
-            else:
-                break
-        p_values += p_dict[key]
+
+for key in p_dict:
+    for row in p_dict[key]: 
+        if len(row) < len(p_header):
+            # handle differences in input files headers
+            if not diffs:
+                print "***Error: Header longer than row but no diffs were detected."
+                sys.exit()
+            for pos in diffs_pos:
+                insert_pos = int(pos)
+                row.insert(insert_pos, "")
+        elif len(row) > len(p_header):
+            print '''***ERROR:Participants row longer than header.
+Check log ({}) for details'''.format(LOG_FILE)
+            logging.error('''Participants row longer than header:
+webinar id:{}
+final_participants_header:{}
+row:{}
+'''.format(key, p_header, row))
+            break
+        else:
+            break
+    p_values += p_dict[key]
 
 p_final_no = len(p_values)
-logging.info("Total participants info size: {}".format(p_final_no))
+logging.info("Total participants info size after processing: {}".format(p_final_no))
 
 # write output files
 print "\nWriting output files:"                
@@ -107,7 +121,7 @@ if args.write_to_db:
 
 # log errors if any
 if p_no_sum != p_final_no:
-    print "ERROR: Some participants info rows might be missing."
+    print "***ERROR: Some participants info rows might be missing."
     print "\t Check log ({}) for more details.".format(LOG_FILE)
     logging.error('''Final total participants size differs from initial.
 Some lines might have been lost in processing.''')
