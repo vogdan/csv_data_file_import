@@ -5,21 +5,22 @@ import sys
 from time import gmtime, strftime
 from wimport_lib import *
 
+
 OUTPUT_PARTICIPANTS = 'oput-Participants.csv'
 OUTPUT_WEBINARS = 'oput-Webinars.csv'
-DETAILS_MARK = "Session Details"
-DB_NAME = "testdb"
-SERVER_NAME = "localhost"
-USER = "testuser" 
-PASS = "testx"
-W_TABLE = "Webinars"
-P_TABLE = "Participants"
+DETAILS_MARK = 'Session Details'
+DB_NAME = 'testdb'
+SERVER_NAME = 'localhost'
+USER = 'testuser'
+W_TABLE = 'Webinars'
+P_TABLE = 'Participants'
+PASS = 'testx'
 
 # setup logging
 LOG_FILE = sys.argv[0].split(".")[0] + ".log"
 logging.basicConfig(filename=LOG_FILE,
-                    level=logging.DEBUG)
-logging.debug("#"*10+strftime("%a, %d %b %Y %X +0000", gmtime())+"#"*10)
+                    level=logging.INFO)
+logging.info("#"*10+strftime("%a, %d %b %Y %X +0000", gmtime())+"#"*10)
 
 # parse CLI options
 parser = ArgumentParser(description='''Gather participants and webinars 
@@ -36,26 +37,29 @@ args = parser.parse_args()
 #    containing lists of lists
 w_dict, p_dict = {}, {}
 p_headers_list = []
+p_no_sum = 0
 for input_file in find_csv_filenames(args.input_dir):
     # get webinar and participants info
-    webinar_info = get_webinar_info(input_file, DETAILS_MARK)
-    webinar_id = get_parameter('Webinar ID', webinar_info[0], webinar_info[1])
-    p_info = get_participants_info(input_file, webinar_id, DETAILS_MARK)
-    logging.debug("Reading from file {}".format(input_file))
-    logging.debug("Webinar ID {} - participants info size {} rows".format(webinar_id, len(p_info[1])))
+    w_info = get_webinar_info(input_file, DETAILS_MARK)
+    w_id = get_parameter('Webinar ID', w_info[0], w_info[1])
+    p_info = get_participants_info(input_file, w_id, DETAILS_MARK)
+    logging.info("Reading from file {}".format(input_file))
+    p_len = len(p_info[1])
+    p_no_sum += p_len
+    logging.info("Webinar ID {} - participants info size {} rows".format(w_id, p_len))
     # store info for later writing to files and database
-    if webinar_id not in w_dict:
-        w_dict[webinar_id] = [webinar_info[1]]
+    if w_id not in w_dict:
+        w_dict[w_id] = [w_info[1]]
     else:
-        w_dict[webinar_id] += [webinar_info[1]]
-    if webinar_id not in p_dict:
-        p_dict[webinar_id] = p_info[1]
+        w_dict[w_id] += [w_info[1]]
+    if w_id not in p_dict:
+        p_dict[w_id] = p_info[1]
     else:
-        p_dict[webinar_id] += p_info[1]
+        p_dict[w_id] += p_info[1]
     p_headers_list += [p_info[0]]	
 
 # get headers and values for webinars
-w_header = webinar_info[0]
+w_header = w_info[0]
 w_values = []
 for key in w_dict:
     w_values += w_dict[key]
@@ -84,7 +88,8 @@ if diffs:
                 break
         p_values += p_dict[key]
 
-logging.debug("Total participants info size: {}".format(len(p_values)))
+p_final_no = len(p_values)
+logging.info("Total participants info size: {}".format(p_final_no))
 
 # write output files
 print "\nWriting output files:"                
@@ -99,3 +104,10 @@ if args.write_to_db:
         cur = conn.cursor()
         write_sql_table(cur, DB_NAME, W_TABLE, w_header, w_values)
         write_sql_table(cur, DB_NAME, P_TABLE, p_header, p_values)
+
+# log errors if any
+if p_no_sum != p_final_no:
+    print "ERROR: Some participants info rows might be missing."
+    print "\t Check log ({}) for more details.".format(LOG_FILE)
+    logging.error('''Final total participants size differs from initial.
+Some lines might have been lost in processing.''')
