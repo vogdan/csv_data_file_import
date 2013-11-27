@@ -1,7 +1,7 @@
 from os import listdir
 from csv import reader, writer
 from os.path import join
-
+from config import logger
 
 def clear_empty_from_list(my_list):
     """
@@ -95,13 +95,14 @@ def write_to_csv(output_file, headers, values_list):
     :input: desired output file name
            a list representing the csv file header
            a list of lists, each representing the corresponding values
+           logger instance to enable writing to log  
     :return: nothing
     :calling example:
               # write webinar details to csv
               w_info = get_webinar_info(INPUT_FILE)
               write_to_csv(OUTPUT_WEBINARS, w_info[0], [w_info[1]])
     """
-    print "\tWriting file {}...".format(output_file)
+    logger.info("\tWriting file {}...".format(output_file))
     with open(output_file, 'wb') as csv_file:
         wrtr = writer(csv_file)
         wrtr.writerow(headers)
@@ -134,23 +135,24 @@ def write_sql_table(cursor, db_name, table_name, headers_list, values_list):
             table_name - name of table to be created
             headers_list - table headers
             values_list - list of lists each containing a table row
+            logger - logging object instance to enable writing to log  
     :return: Nothing
     :notes: Tables will be dropped and recreated if already exist
             Column names will be the CSV headers with spaces and round 
                 brackets removed.
     """
 
-    print "\tDropping table {}.{}...".format(db_name, table_name)
+    logger.info("\tDropping table {}.{}...".format(db_name, table_name))
     cursor.execute("DROP TABLE IF EXISTS {}.{}".format(db_name, table_name))
 
-    print "\tCreating table {}.{}...".format(db_name, table_name)
+    logger.info("\tCreating table {}.{}...".format(db_name, table_name))
     db_headers = [x.translate(None, '() ') for x in headers_list]
     create_cmd = "CREATE TABLE {}({})".format(
         table_name,
         ", ".join(["`"+x+"`" + " VARCHAR(1000)" for x in db_headers]))
     cursor.execute(create_cmd)
 
-    print "\tPopulating table {}.{}...".format(db_name, table_name)
+    logger.info("\tPopulating table {}.{}...".format(db_name, table_name))
     for row in values_list:
         insert_cmd = "INSERT INTO {0}({1}) VALUES({2})".format(  
             db_name + "." + table_name,
@@ -159,4 +161,4 @@ def write_sql_table(cursor, db_name, table_name, headers_list, values_list):
         try:
             cursor.execute(insert_cmd)
         except:
-            print "\n***ERROR:SQL error at executing command:\n\t{}".format(insert_cmd)
+            logger.info("\n***ERROR:SQL error at executing command:\n\t{}".format(insert_cmd))
