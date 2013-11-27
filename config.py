@@ -35,7 +35,7 @@ logger.setLevel(logging.DEBUG)
 # log to console
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
-ch_format = logging.Formatter(' %(message)s')
+ch_format = logging.Formatter('%(levelname)s: %(message)s')
 ch.setFormatter(ch_format)
 logger.addHandler(ch)
 # log to file
@@ -44,7 +44,5 @@ fh.setLevel(logging.DEBUG)
 fh_format = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
 fh.setFormatter(fh_format)
 logger.addHandler(fh)
-# add log run delimiter (only visible in log file)
-log_delimiter = "#"*20 + strftime("%a, %d %b %Y %X +0000", gmtime()) + "#"*10 
-logger.debug("\n"*2 + log_delimiter + "\n")
+
 

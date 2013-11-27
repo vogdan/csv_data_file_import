@@ -1,6 +1,5 @@
-from os import listdir
+import os
 from csv import reader, writer
-from os.path import join
 from config import logger
 
 def clear_empty_from_list(my_list):
@@ -95,7 +94,6 @@ def write_to_csv(output_file, headers, values_list):
     :input: desired output file name
            a list representing the csv file header
            a list of lists, each representing the corresponding values
-           logger instance to enable writing to log  
     :return: nothing
     :calling example:
               # write webinar details to csv
@@ -120,9 +118,9 @@ def find_csv_filenames(input_dir, suffix=".csv"):
     :return: list containing the csv files in input_dir (full path) 
     """
     
-    filenames = listdir(input_dir)
-    return [join(input_dir, filename) for filename in filenames 
-                                        if filename.endswith(suffix)]
+    filenames = os.listdir(input_dir)
+    return [os.path.join(input_dir, filename) for filename in filenames 
+            if filename.endswith(suffix)]
 
 
 def write_sql_table(cursor, db_name, table_name, headers_list, values_list):
@@ -135,7 +133,6 @@ def write_sql_table(cursor, db_name, table_name, headers_list, values_list):
             table_name - name of table to be created
             headers_list - table headers
             values_list - list of lists each containing a table row
-            logger - logging object instance to enable writing to log  
     :return: Nothing
     :notes: Tables will be dropped and recreated if already exist
             Column names will be the CSV headers with spaces and round 
@@ -161,4 +158,4 @@ def write_sql_table(cursor, db_name, table_name, headers_list, values_list):
         try:
             cursor.execute(insert_cmd)
         except:
-            logger.info("\n***ERROR:SQL error at executing command:\n\t{}".format(insert_cmd))
+            logger.error("SQL error while executing command:\n\t{}".format(insert_cmd))
