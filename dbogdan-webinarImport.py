@@ -163,6 +163,7 @@ Some lines might have been lost in processing. Exiting...'''.format(p_final_no, 
     except Exception as e:
         print "\n\tSomething went wrong. Check log for details."
         logger.debug("Exception:\n{}".format(e))
+        return 1
 
 
 if __name__ == "__main__":
