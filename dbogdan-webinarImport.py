@@ -1,15 +1,18 @@
 from MySQLdb import connect
-from argparse import ArgumentParser
 from time import gmtime, strftime
+from argparse import ArgumentParser
 import os
-import wimport_lib
+import wimport_lib 
 from config import logger
 from config import OUTPUT_PARTICIPANTS, OUTPUT_WEBINARS, DETAILS_MARK
 from config import DB_NAME, SERVER_NAME, USER, PASS, W_TABLE, P_TABLE 
 from config import LOG_FILE, LOG_FILE_PATH
 
 
+
 def parse_cli_opts():
+    global args
+
     parser = ArgumentParser(description='''Gather participants and webinars 
 info from multiple files of attendees for GotoWebinar webinars''')
     parser.add_argument('-i', '--input_dir', 
@@ -18,39 +21,44 @@ info from multiple files of attendees for GotoWebinar webinars''')
     parser.add_argument('-d', '--write_to_db', 
                         help='Write info to database also', 
                         action="store_true")
+    args = parser.parse_args()
 
-    return parser.parse_args()
 
-
-def main():
-    
-    args = parse_cli_opts()
-    
+def gather_csv_info():
     # cycle through files in input dir and gather info in dictionaries
     #    containing lists of lists
+    global args
+    global w_dict, w_info
+    global p_dict, p_headers_list, p_no_sum
+
     w_dict, p_dict = {}, {}
     p_headers_list = []
     p_no_sum = 0
+
     for input_file in wimport_lib.find_csv_filenames(args.input_dir):
         # get webinar and participants info
         w_info = wimport_lib.get_webinar_info(input_file, DETAILS_MARK)
-        w_id = wimport_lib.get_parameter('Webinar ID', w_info[0], w_info[1])
-        p_info = wimport_lib.get_participants_info(input_file, w_id, DETAILS_MARK)
-        p_len = len(p_info[1])
-        p_no_sum += p_len
-        logger.info("Reading {} \n\t --> {} participants.".format(input_file, p_len))
-        # store info for later writing to files and database
-        if w_id not in w_dict:
-            w_dict[w_id] = [w_info[1]]
-        else:
-            w_dict[w_id] += [w_info[1]]
-        if w_id not in p_dict:
+        if w_info:
+            w_id = wimport_lib.get_parameter('Webinar ID', w_info[0], w_info[1])
+            p_info = wimport_lib.get_participants_info(input_file, w_id, DETAILS_MARK)
+            p_len = len(p_info[1])
+            p_no_sum += p_len
+            logger.info("Reading {} \n\t --> {} participants.".format(input_file, p_len))
+            # store info for later writing to files and database
+            if w_id not in w_dict:
+                w_dict[w_id] = [w_info[1]]
+            else:
+                w_dict[w_id] += [w_info[1]]
+            if w_id not in p_dict:
                 p_dict[w_id] = p_info[1]
-        else:
+            else:
                 p_dict[w_id] += p_info[1]
-        p_headers_list += [p_info[0]]	
+            p_headers_list += [p_info[0]]	
 
-    logger.info("Processing gathered information...")    
+
+def process_csv_info():
+    global w_dict, w_header, w_values
+    global p_header, p_values, p_headers_list
 
     # get headers and values for webinars
     w_header = w_info[0]
@@ -93,30 +101,51 @@ row:{}
                 break
         p_values += p_dict[key]
 
-    # check for data consistency
-    p_final_no = len(p_values)
-    w_final_no = len(w_values)
-    logger.info("Total: {} participants, {} webinars.".format(p_final_no, w_final_no))
-    if p_no_sum != p_final_no:
-        logger.error('''Total participants number after processing differs from initial value.
-Some lines might have been lost in processing. Exiting...''')
-        return 1
-
-    # write output files
-    logger.info("Writing output files:")
-    wimport_lib.write_to_csv(OUTPUT_WEBINARS, w_header, w_values)
-    wimport_lib.write_to_csv(OUTPUT_PARTICIPANTS, p_header, p_values)
-
-    # write to database
-    if args.write_to_db:
-        logger.info("Writing do database:")
-        conn = connect(SERVER_NAME, USER, PASS, DB_NAME)
-        with conn:
-            cur = conn.cursor()
-            wimport_lib.write_sql_table(cur, DB_NAME, W_TABLE, w_header, w_values)
-            wimport_lib.write_sql_table(cur, DB_NAME, P_TABLE, p_header, p_values)
+    return 0
 
 
+def main():
+    global args
+    global w_dict, w_info, w_header, w_values
+    global p_dict, p_headers_list, p_no_sum, p_header, p_values
+
+    parse_cli_opts()
+    gather_csv_info()
+
+    try:
+        logger.info("Processing gathered information...")
+        result = process_csv_info()
+        if result: 
+            return result
+    
+        # check for data consistency
+        p_final_no = len(p_values)
+        w_final_no = len(w_values)
+        logger.info("Total: {} participants, {} webinars.".format(p_final_no, w_final_no))
+        if p_no_sum != p_final_no:
+            logger.error('''Total participants number after processing ({}) differs from initial value ({}).
+Some lines might have been lost in processing. Exiting...'''.format(p_final_no, p_no_sum))
+            return 1
+
+        # write output files
+        logger.info("Writing output files:")
+        wimport_lib.write_to_csv(OUTPUT_WEBINARS, w_header, w_values)
+        wimport_lib.write_to_csv(OUTPUT_PARTICIPANTS, p_header, p_values)
+
+        # write to database
+        if args.write_to_db:
+            logger.info("Writing do database:")
+            conn = connect(SERVER_NAME, USER, PASS, DB_NAME)
+            with conn:
+                cur = conn.cursor()
+                wimport_lib.write_sql_table(cur, DB_NAME, W_TABLE, w_header, w_values)
+                wimport_lib.write_sql_table(cur, DB_NAME, P_TABLE, p_header, p_values)
+
+        return 0
+
+    except Exception as e:
+        print "\n\tSomething went wrong. Check log for details."
+        logger.debug("{}".format(e))
 
 if __name__ == "__main__":
     
@@ -124,6 +153,6 @@ if __name__ == "__main__":
     log_delimiter = "#"*20 + strftime("%a, %d %b %Y %X +0000", gmtime()) + "#"*10 
     logger.debug("\n"*2 + log_delimiter + "\n")    
     
+    print ""
     main()
-    
-    print '\nLog is at: "{}"\n'.format(os.path.join(LOG_FILE_PATH, LOG_FILE))
+    print "\nDebug log: '{}'\n".format(os.path.join(LOG_FILE_PATH, LOG_FILE))

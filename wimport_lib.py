@@ -21,25 +21,28 @@ def get_webinar_info(input_file, details_mark):
     :return: a list of two lists containing the webinar details 
              headers and corresponding header values
     """
-    
-    with open(input_file, 'rb') as csv_file:
-        rdr = reader(csv_file)
-        # read Generated info and advance to next useful headers
-        rdr.next()
-        keys = rdr.next()
-        vals = rdr.next()
-        rdr.next()
-        # read the rest of webinar info
-        while details_mark not in keys:
-            try:
-                headers += clear_empty_from_list(keys)
-                values += clear_empty_from_list(vals)
-            except NameError:
-                headers = clear_empty_from_list(keys)
-                values = clear_empty_from_list(vals)
+    try:
+        with open(input_file, 'rb') as csv_file:
+            rdr = reader(csv_file)
+            # read Generated info and advance to next useful headers
+            rdr.next()
             keys = rdr.next()
             vals = rdr.next()
-    return [headers, values]
+            rdr.next()
+            # read the rest of webinar info
+            while details_mark not in keys:
+                try:
+                    headers += clear_empty_from_list(keys)
+                    values += clear_empty_from_list(vals)
+                except NameError:
+                    headers = clear_empty_from_list(keys)
+                    values = clear_empty_from_list(vals)
+                keys = rdr.next()
+                vals = rdr.next()
+        return [headers, values]
+    except IOError as e:
+       logger.error("Cannot read file '{}'".format(input_file))
+       logger.debug("Exception:\n{}".format(e))
 
 
 def get_participants_info(input_file, webinar_id, details_mark):
@@ -56,19 +59,21 @@ def get_participants_info(input_file, webinar_id, details_mark):
     reading_details = 0
     values_list = []
     remove_row_marker = '*If an attendee left and rejoined the session, the In Session Duration column only includes their first visit.'
-    with open(input_file, 'rb') as csv_file:
-        rdr = reader(csv_file)
-        for row in rdr:
-            if not reading_details:
-                if details_mark in row:
-                    headers = ['Webinar ID'] + rdr.next()
-                    reading_details = 1
-                    continue
-            else:
-                if remove_row_marker not in row:
+    try: 
+        with open(input_file, 'rb') as csv_file:
+            rdr = reader(csv_file)
+            for row in rdr:
+                if not reading_details:
+                    if details_mark in row:
+                        headers = ['Webinar ID'] + rdr.next()
+                        reading_details = 1
+                        continue
+                elif remove_row_marker not in row:
                     values_list.append([webinar_id] + row)
-    return [headers, values_list]
-
+        return [headers, values_list]
+    except IOError as e:
+        logger.error("Cannot read file '{}'".format(input_file))
+        logger.debug("Exception:\n{}".format(e))
 
 def get_parameter(param_str, headers, values):
     """
@@ -157,5 +162,6 @@ def write_sql_table(cursor, db_name, table_name, headers_list, values_list):
             ", ".join(["'"+x.replace("'", "\\'")+"'" for x in row]))
         try:
             cursor.execute(insert_cmd)
-        except:
+        except Exception as e:
             logger.error("SQL error while executing command:\n\t{}".format(insert_cmd))
+            logger.debug(e)
