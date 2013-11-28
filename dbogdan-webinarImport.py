@@ -11,10 +11,14 @@ from config import LOG_FILE, LOG_FILE_PATH
 
 
 def parse_cli_opts():
+    """
+    Creates the cli interface and provide an argument parse handler (args)
+    """
     global args
 
     parser = ArgumentParser(description='''Gather participants and webinars 
-info from multiple files of attendees for GotoWebinar webinars''')
+info from multiple files of attendees for GotoWebinar webinars and output
+data in two output files or/and to a MySQL database.''')
     parser.add_argument('-i', '--input_dir', 
                         help='Directory containing input csv files', 
                         required=True)
@@ -25,8 +29,10 @@ info from multiple files of attendees for GotoWebinar webinars''')
 
 
 def gather_csv_info():
-    # cycle through files in input dir and gather info in dictionaries
-    #    containing lists of lists
+    """
+    Reads the input files one by one and stores the data in dictionaries
+    containing lists of lists.
+    """
     global args
     global w_dict, w_info
     global p_dict, p_headers_list, p_no_sum
@@ -53,11 +59,22 @@ def gather_csv_info():
                 p_dict[w_id] = p_info[1]
             else:
                 p_dict[w_id] += p_info[1]
-            p_headers_list += [p_info[0]]	
+            p_headers_list += [p_info[0]]
 
 
 def process_csv_info():
-    global w_dict, w_header, w_values
+    """
+    Processing of the read information:
+        Separate headers form webinars and participants details.
+        Detect differences in participants headers and cope with them 
+            ( keep the longes header and add empty fields in the right 
+              positionfor participants info rows that are shorter than 
+              the longest header )        
+        Basic error checking and debug messahe logging.
+    
+    :return: 1 on error and 0 on success
+    """
+    global w_dict, w_header, w_values, w_info
     global p_header, p_values, p_headers_list
 
     # get headers and values for webinars
@@ -105,7 +122,7 @@ row:{}
 
 
 def main():
-    global args
+    global args 
     global w_dict, w_info, w_header, w_values
     global p_dict, p_headers_list, p_no_sum, p_header, p_values
 
@@ -147,12 +164,13 @@ Some lines might have been lost in processing. Exiting...'''.format(p_final_no, 
         print "\n\tSomething went wrong. Check log for details."
         logger.debug("{}".format(e))
 
+
 if __name__ == "__main__":
     
     # add log run delimiter (only visible in log file)
     log_delimiter = "#"*20 + strftime("%a, %d %b %Y %X +0000", gmtime()) + "#"*10 
     logger.debug("\n"*2 + log_delimiter + "\n")    
-    
+
     print ""
     main()
     print "\nDebug log: '{}'\n".format(os.path.join(LOG_FILE_PATH, LOG_FILE))
