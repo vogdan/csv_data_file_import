@@ -19,7 +19,9 @@ If so specified, the program can also write the information gathered into a data
           
     Packages needed: MySQLdb, logging.      
 
-###Database setup
+###How To
+
+#####Database setup
 
    For the database writing to work, we need to create a user and a database and grant all privileges to this user 
    for all tables of the database. 
@@ -53,7 +55,26 @@ If so specified, the program can also write the information gathered into a data
     mysql> quit;
     Bye
 
+#####Logging Guidelines
 
+1. Do not use print. Use the logger object instead by 
+    importing it in your .py file:
+
+        from config import logger
+    
+  Only use print if you want messages to be displayed
+     at the console but not in the log file
+ 
+2. To log message to console and log file use
+
+        log.info(message)
+
+3. To log message only to log file (debug messages) use     
+
+        log.debug(message)
+
+4. Warning (log.warning )and error (log.error) messages 
+    will be automatically logged to both console and log file.
 
 
 ### Program Requirements
