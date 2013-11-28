@@ -1,7 +1,6 @@
 import logging
 import sys 
 import os
-from time import gmtime, strftime
 
 
 OUTPUT_PARTICIPANTS = 'oput-Participants.csv'

@@ -1,5 +1,6 @@
 from MySQLdb import connect
 from argparse import ArgumentParser
+from time import gmtime, strftime
 import os
 import wimport_lib
 from config import logger
