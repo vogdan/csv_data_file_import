@@ -12,7 +12,7 @@ from config import LOG_FILE, LOG_FILE_PATH
 
 def parse_cli_opts():
     """
-    Creates the cli interface and provide an argument parse handler (args)
+    Creates the cli interface and provids an argument parse handler (args)
     """
     global args
 
@@ -64,7 +64,7 @@ def gather_csv_info():
 
 def process_csv_info():
     """
-    Processing of the read information:
+    Processes the read information:
         Separate headers form webinars and participants details.
         Detect differences in participants headers and cope with them 
             ( keep the longes header and add empty fields in the right 
@@ -162,7 +162,7 @@ Some lines might have been lost in processing. Exiting...'''.format(p_final_no, 
 
     except Exception as e:
         print "\n\tSomething went wrong. Check log for details."
-        logger.debug("{}".format(e))
+        logger.debug("Exception:\n{}".format(e))
 
 
 if __name__ == "__main__":
