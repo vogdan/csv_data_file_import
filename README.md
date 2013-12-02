@@ -26,6 +26,7 @@ If so specified, the program can also write the information gathered into a data
    For the database writing to work, we need to create a user and a database and grant all privileges to this user 
    for all tables of the database. 
 
+```mysql
     $ mysql -u root -p
     Enter password: *****
     Welcome to the MySQL monitor.  Commands end with ; or \g.
@@ -54,11 +55,12 @@ If so specified, the program can also write the information gathered into a data
 
     mysql> quit;
     Bye
+```
 
 #####Logging Guidelines
 
 1. Do not use print. Use the logger object instead by 
-    importing it in your .py file:
+    importing it in your ```.py``` file:
 
         from config import logger
     
@@ -73,7 +75,7 @@ If so specified, the program can also write the information gathered into a data
 
         log.debug(message)
 
-4. Warning (log.warning )and error (log.error) messages 
+4. Warning (```log.warning```) and error (```log.error```) messages 
     will be automatically logged to both console and log file.
 
 
@@ -82,15 +84,15 @@ If so specified, the program can also write the information gathered into a data
 - program should read from multiple input files (see attachments) and create just the 2 output files.  
 Note that some of the input files are slightly different
  
-- program should have a command line option "-i <directory>"  where <directory> specifies where the input files 
+- program should have a command line option ```-i <directory>``` where ```<directory>``` specifies where the input files 
 can be found
 
 - the output file should be written to the current durectory (where the py file is invoked)
  
-- if the program is run with a command line option "-d" it should load the output to a database 
+- if the program is run with a command line option ```-d``` it should load the output to a database 
 (in addition to creating the output file)
 The program should create the tables if they don't exist or overwrite everything if they do exist.  
-Table and Server names can be specified in variables at inside the python file as DB_NAME and SERVER_NAME
+Table and Server names can be specified in variables at inside the python file as ```DB_NAME``` and ```SERVER_NAME```
 
 https://www.elance.com/j/data-file-import/48843674/?bidid=48910074
 
